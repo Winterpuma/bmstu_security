@@ -22,8 +22,22 @@ namespace lab3_DES
 
             foreach (byte curByte in byteArr)
                 _fs.WriteByte(curByte);
+        }
 
-            // TODO not 64 bits original
+        public void WriteToStartOfFile(byte b)
+        {
+            _fs.Seek(0, SeekOrigin.Begin);
+            _fs.WriteByte(b);
+        }
+
+        public void Close()
+        {
+            _fs.Close();
+        }
+
+        ~Writer()
+        {
+            Close();
         }
     }
 }
