@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections;
+﻿using System.Collections;
 
 namespace lab3_DES
 {
     static class Cycles
     {
-        public static BitArray EncryptionСycles(BitArray input, BitArray key)
+        /// <summary>
+        /// Циклы шифрования
+        /// </summary>
+        /// <param name="input">Данные для шифрования</param>
+        /// <param name="roundKeys">Раундовые ключи</param>
+        /// <returns>Зашифрованные данные</returns>
+        public static BitArray EncryptionСycles(BitArray input, BitArray[] roundKeys)
         {
             var curArray = DataOperations.Permutate(input, DESPreDefined.IPnormal);
             var left = DataOperations.GetLeftPart(curArray);
@@ -18,7 +19,7 @@ namespace lab3_DES
             for (int iCycle = 0; iCycle < 16; iCycle++)
             {
                 var rightPrev = right;
-                right = left.Xor(DataOperations.FeistelFunction(right, key));
+                right = left.Xor(DataOperations.FeistelFunction(right, roundKeys[iCycle]));
                 left = rightPrev;
             }
 
@@ -27,7 +28,13 @@ namespace lab3_DES
             return curArray;
         }
 
-        public static BitArray DecryptionСycles(BitArray input, BitArray key)
+        /// <summary>
+        /// Циклы дешифрования
+        /// </summary>
+        /// <param name="input">Данные для дешифрации</param>
+        /// <param name="roundKeys">Раундовые ключи</param>
+        /// <returns>Дешифрованные данные</returns>
+        public static BitArray DecryptionСycles(BitArray input, BitArray[] roundKeys)
         {
             var curArray = DataOperations.Permutate(input, DESPreDefined.IPnormal);
             var left = DataOperations.GetLeftPart(curArray);
@@ -36,7 +43,7 @@ namespace lab3_DES
             for (int iCycle = 0; iCycle < 16; iCycle++)
             {
                 var leftPrev = left;
-                left = right.Xor(DataOperations.FeistelFunction(left, key));
+                left = right.Xor(DataOperations.FeistelFunction(left, roundKeys[16 - iCycle - 1]));
                 right = leftPrev;
             }
 
