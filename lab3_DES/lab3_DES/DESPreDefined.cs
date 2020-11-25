@@ -9,16 +9,16 @@ namespace lab3_DES
     static class DESPreDefined
     {
         private static string _rootDirectory = @"D:\GitHub\bmstu_security\lab3_DES\permutations\";
-        public static int[] encoding;
-        public static int[] decoding;
+        public static int[] IPnormal;
+        public static int[] IPconverse;
         public static int[] expansion;
         public static int[] finishP;
         public static int[][][] sBlocks;
         
         static DESPreDefined()
         {
-            encoding = ReadIntArrayFromFile(_rootDirectory + "encoding.txt");
-            decoding = ReadIntArrayFromFile(_rootDirectory + "decoding.txt");
+            IPnormal = ReadIntArrayFromFile(_rootDirectory + "encoding.txt");
+            IPconverse = ReadIntArrayFromFile(_rootDirectory + "decoding.txt");
             expansion = ReadIntArrayFromFile(_rootDirectory + "Expansion.txt");
             finishP = ReadIntArrayFromFile(_rootDirectory + "finishP.txt");
 
