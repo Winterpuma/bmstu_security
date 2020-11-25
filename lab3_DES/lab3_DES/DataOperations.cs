@@ -101,5 +101,44 @@ namespace lab3_DES
 
             return res;
         }
+        
+        /// <summary>
+        /// Возвращает левую половину data
+        /// </summary>
+        public static BitArray GetLeftPart(BitArray data)
+        {
+            BitArray res = new BitArray(data.Count / 2);
+
+            for (int i = 0; i < res.Count; i++)
+                res[i] = data[i];
+
+            return res;
+        }
+
+        /// <summary>
+        /// Возвращает правую половину data
+        /// </summary>
+        public static BitArray GetRightPart(BitArray data)
+        {
+            BitArray res = new BitArray(data.Count / 2);
+
+            for (int iRes = 0, i = data.Count / 2; i < data.Count; i++, iRes++)
+                res[iRes] = data[i];
+
+            return res;
+        }
+
+        /// <summary>
+        /// Объединяет левую и правую части данных
+        /// </summary>
+        public static BitArray Join(BitArray left, BitArray right)
+        {
+            BitArray res = new BitArray(left.Count + right.Count);
+            bool[] resb = new bool[left.Count + right.Count];
+            left.CopyTo(resb, 0);
+            right.CopyTo(resb, left.Count);
+
+            return new BitArray(resb);
+        }
     }
 }
