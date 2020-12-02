@@ -42,7 +42,7 @@
         public static int Inverse(int a, int n)
         {
             int t = 0;
-            int r = n;
+            int r = n; // остаток от деления
             int newt = 1;
             int newr = a;
 

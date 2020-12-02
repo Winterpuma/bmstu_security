@@ -75,11 +75,9 @@ namespace lab4_RSA
         }
 
         /// <summary>
-        /// (e * f) mod(fi) = 1
+        /// (e * d) mod(fi) = 1
         /// </summary>
-        /// <param name="e"></param>
-        /// <param name="fi"></param>
-        /// <returns></returns>
+        /// <returns>d</returns>
         static int ComputePrivateKey(int e, int fi)
         {
             return MyMath.Inverse(e, fi);
