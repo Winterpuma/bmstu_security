@@ -5,25 +5,7 @@ using System.IO;
 namespace lab6_LZW
 {
     static class LZWAlgo
-    {
-        public static List<string> InitDictionary()
-        {
-            List<string>  dictionary = new List<string>();
-            /*
-            dictionary.Add("a");
-            dictionary.Add("b");
-            dictionary.Add("w");
-            */
-            
-            for (int i = 0; i < 256; i++)
-                dictionary.Add(((char)i).ToString());
-            /*
-            for (char c = 'a'; c <= 'z'; c++)
-                dictionary.Add(c.ToString());*/
-
-            return dictionary;
-        }
-        
+    {        
         /// <summary>
         /// Сжатие
         /// </summary>
@@ -31,29 +13,35 @@ namespace lab6_LZW
         /// <param name="dst">Путь для создания сжатого файла</param>
         public static void Compress(string src, string dst)
         {
-            List<string> dictionary = InitDictionary();
+            Table table = new Table();
 
             using (var input = new FileStream(src, FileMode.Open))
             {
                 using (var output = new BinaryWriter(new FileStream(dst, FileMode.Create)))
                 {
-                    string p = "";
+                    TableRow p = new TableRow(); // empty
+                    
                     int last = input.ReadByte();
+                    //Console.WriteLine($"byte: {last}");
                     while (last != -1)
                     {
-                        string pPlusC = p + (char)last;
-                        while (dictionary.FindIndex(x => x == pPlusC) != -1)
+                        //Console.WriteLine($"her {last}");
+                        TableRow pPlusC = p + new TableRow(last); //string pPlusC = p + (char)last;
+                        while (table.IsRowInTable(pPlusC)) //dictionary.FindIndex(x => x == pPlusC) != -1)
                         {
                             p = pPlusC;
                             last = input.ReadByte();
-                            pPlusC += (char)last;
+                            //Console.WriteLine($"byte: {last}");
+                            pPlusC += new TableRow(last);
                         }
-                        
-                        dictionary.Add(pPlusC);
-                        int indexToAdd = dictionary.FindIndex(x => x == p);
+
+                        //Console.WriteLine($"add: {pPlusC}");
+                        table.Add(pPlusC);
+                        int indexToAdd = table.FindIndex(p);
                         output.Write((ushort)indexToAdd);
-                        p = "";
+                        p = new TableRow();
                     }
+                    output.Write(ushort.MaxValue);
                 }
             }
         }
@@ -65,36 +53,43 @@ namespace lab6_LZW
         /// <param name="dst">Путь для создания распакованного файла</param>
         public static void Decompress(string src, string dst)
         {
-            List<string> dictionary = InitDictionary();
+            Table table = new Table();
 
-            using (var input = new FileStream(src, FileMode.Open))
+            using (var input = new BinaryReader(new FileStream(src, FileMode.Open)))
             {
-                using (var output = new BinaryWriter(new FileStream(dst, FileMode.Create)))
+                using (var output = new FileStream(dst, FileMode.Create))
                 {
-                    ushort cW;
-                    string w = "";
+                    TableRow w = new TableRow(); ;
 
-                    var r1 = input.ReadByte();
+                    var cW = input.ReadUInt16();
 
-                    while (r1 != -1)
+                    while (cW != ushort.MaxValue)//(r1 != -1)
                     {
-                        var r2 = input.ReadByte() << 8;
-                        cW = (ushort)(r2 | r1);
+                        //var r2 = input.ReadInt32() << 8;
+                        //cW = r2 | r1;
 
-                        string entry = null;
-                        if (cW < dictionary.Count)
-                            entry = dictionary[cW];
-                        else if (cW == dictionary.Count)
+                        TableRow entry = new TableRow();
+                        if (cW < table.Count)
+                            entry = table[cW];
+                        else if (cW == table.Count)
                             entry = w + w[0];
-                        
-                        foreach (char c in entry)
-                            output.Write(c);
 
-                        dictionary.Add(w + entry[0]);
+                        foreach (byte b in entry.row)
+                        {
+                            //Console.WriteLine($"byte: {b}");
+                            output.WriteByte(b);
+                        }
+
+                        if (!table.IsRowInTable(w + entry[0]))
+                        {
+                            //Console.WriteLine($"add: {w + entry[0]}");
+                            table.Add(w + entry[0]);
+                        }
 
                         w = entry;
 
-                        r1 = input.ReadByte();
+                        cW = input.ReadUInt16();
+                        //r1 = input.ReadByte();
                     }
                 }
             }
